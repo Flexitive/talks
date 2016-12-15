@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Aphrodite</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      a {
+        color: #880000;
+        text-decoration: none;
+      }
+      .remark-code, .remark-inline-code {
+        font-family: 'Ubuntu Mono';
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# [Aphrodite](https://github.com/Khan/aphrodite)
+## Inline styles that work
+
+---
+
+# Why
+
+2. Duplicate code elimination
+2. Modular development
+3. Sharing constants in JS and CSS (from DB)
+4. [...](https://speakerdeck.com/vjeux/react-css-in-js)
+
+---
+
+# The "CSS"
+
+```js
+export default StyleSheet.create({
+  base: {
+    color: 'black',
+    ':hover': {
+        textDecoration: 'underline',
+    },
+  },
+  fancy: {
+    color: 'blue',
+    background: 'yellow',
+  },
+});
+```
+
+---
+
+# React Component
+
+```jsx
+import React, { Component } from 'react';
+import { css } from 'aphrodite';
+
+import styles from '../css/styles';
+
+class App extends Component {
+    render() {
+      const name = 'Neuranet';
+
+      return (
+        <div>
+          <div className={css(styles.base)}>
+            This is black and has underline on hover.
+          </div>
+          <div className={css(styles.base, styles.fancy)}>
+            This is blue and has an underline on hover.
+          </div>
+          <div>&copy; {name}</div>
+        </div>
+      );
+    }
+}
+```
+
+---
+
+# Constants
+
+Constants for all our styles:
+
+```js
+export const PRIMARY_COLOR = '#00a857';
+export const SECONDARY_COLOR = '#777';
+export const SUCCESS_COLOR = PRIMARY_COLOR;
+export const ERROR_COLOR = '#df3065';
+export const DELETE_BUTTON_COLOR = '#cb5234';
+```
+
+Link component stylesheet:
+
+```js
+export const siteList = StyleSheet.create({
+  base: {
+    fontSize: 20,
+    textDecoration: 'none',
+    color: SECONDARY_COLOR,
+  },
+  active: {
+    color: PRIMARY_COLOR,
+  },
+});
+```
+
+---
+
+# Fonts
+
+Fonts file:
+
+```js
+export const helv = {
+  mdcn: {
+    fontFamily: 'helv-med-cond',
+    src: "url('/fonts/helveticaneueltstd-mdcn-webfont.ttf') format('truetype')",
+  },
+};
+```
+
+Reference in stylesheets:
+
+```js
+import { helv } from '../fonts';
+
+export default StyleSheet.create({
+  base: {
+    backgroundColor: '#fbfbfb',
+    color: '#444',
+    fontFamily: [helv.mdcn, 'sans-serif'],
+    fontSize: 16,
+  },
+});
+```
+
+---
+
+# Output
+
+```css
+.base_14sqej3-o_O-background_3ocxr {
+  background-size: contain;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  background-image: url(/5572838d351b66bf6a3350b6d8d23cb8.gif);
+}
+.base_70d6sx-o_O-base_pm1yi {
+  height: auto;
+  background-color: #fbfbfb;
+  font-family: "helv-med-cond", sans-serif;
+  color: #444;
+  font-size: 16px;
+  width: 1920px;
+  min-height: 960px;
+}
+```
+
+---
+
+class: center, middle
+
+# Fin
+
+    </textarea>
+    <script src="./libs/remark.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
