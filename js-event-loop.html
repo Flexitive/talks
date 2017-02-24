@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>JavaScript Event Loop</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      a {
+        color: #38bb6c;
+        text-decoration: none;
+      }
+      .remark-code, .remark-inline-code {
+        font-family: 'Ubuntu Mono';
+      }
+      .image img {
+        width: 100%;
+        height: 100%;
+      }
+      .half {
+        float: left;
+        width: 48%;
+        margin: 0 1%;
+      }
+      .third {
+        float: left;
+        width: 31%;
+        margin: 0 1%;
+      }
+    </style>
+  </head>
+  <body>
+<textarea id="source">
+
+class: center, middle
+
+# JavaScript Event Loop
+in 40 slides...
+
+---
+class: center, middle
+
+## JavaScript Language
+
+A single-threaded, non-blocking asynchronous concurrent runtime.
+
+???
+What are you? Oh right...
+
+---
+class: center, middle
+
+## JavaScript Language
+
+I have a call stack, an event loop, a callback queue and some APIs.
+
+???
+How do you actually work?
+
+---
+
+## Multiple Threads
+
+```elixir
+defmodule Parallel do
+  def pmap(collection, fun) do
+    me = self
+    collection
+    |> Enum.map(fn (elem) ->
+         spawn_link fn -> (send me, { self, fun.(elem) }) end
+       end)
+    |> Enum.map(fn (pid) ->
+         receive do { ^pid, result } -> result end
+       end)
+  end
+end
+```
+
+???
+Apache web server creates a thread for each web request it receives, JavaScript has a single thread.
+
+Multiple threads/processes allow us to run code on multiple cores, multiple machines, split the workload.
+
+---
+
+## JavaScript(s)
+
+[JerryScript](http://jerryscript.net/) example from Samsung (IoT):
+
+```c
+#include <string.h>
+#include "jerryscript.h"
+
+int
+main (int argc, char *argv[])
+{
+  const jerry_char_t script[] = "print ('Hello, World!');";
+  size_t script_size = strlen ((const char *) script);
+
+  bool ret_value = jerry_run_simple (script, script_size, JERRY_INIT_EMPTY);
+
+  return (ret_value ? 0 : 1);
+}
+```
+
+---
+
+## JavaScript in Chrome
+
+.image[![Diagram](./img/1-js-in-chrome.png)]
+
+???
+Different APIs in different environments, Chrome has v8 (used in Opera, Node.js, MongoDB), but there is also etc. SpiderMonkey.
+
+*Stack*: You add to the top, you remove from the top.
+
+---
+
+## Call Stack
+
+.half[
+```js
+function multiply(a, b) {
+  return a * b;
+}
+function square(n) {
+  return multiply(n, n);
+}
+return print(n) {
+  var squared = square(n);
+  console.log(squared);
+}
+print(5);
+```
+]
+
+.half[
+Call Stack
+
+```
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+function multiply(a, b) {
+  return a * b;
+}
+function square(n) {
+  return multiply(n, n);
+}
+return print(n) {
+  var squared = square(n);
+  console.log(squared);
+}
+print(5);
+```
+]
+
+.half[
+Call Stack
+
+```
+print(5)
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+function multiply(a, b) {
+  return a * b;
+}
+function square(n) {
+  return multiply(n, n);
+}
+return print(n) {
+  var squared = square(n);
+  console.log(squared);
+}
+print(5);
+```
+]
+
+.half[
+Call Stack
+
+```
+square(n)
+print(5)
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+function multiply(a, b) {
+  return a * b;
+}
+function square(n) {
+  return multiply(n, n);
+}
+return print(n) {
+  var squared = square(n);
+  console.log(squared);
+}
+print(5);
+```
+]
+
+.half[
+Call Stack
+
+```
+multiply(n, n)
+square(n)
+print(5)
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+function multiply(a, b) {
+  return a * b;
+}
+function square(n) {
+  return multiply(n, n);
+}
+return print(n) {
+  var squared = square(n);
+  console.log(squared);
+}
+print(5);
+```
+]
+
+.half[
+Call Stack
+
+```
+square(n)
+print(5)
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+function multiply(a, b) {
+  return a * b;
+}
+function square(n) {
+  return multiply(n, n);
+}
+return print(n) {
+  var squared = square(n);
+  console.log(squared);
+}
+print(5);
+```
+]
+
+.half[
+Call Stack
+
+```
+print(5)
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+function multiply(a, b) {
+  return a * b;
+}
+function square(n) {
+  return multiply(n, n);
+}
+return print(n) {
+  var squared = square(n);
+  console.log(squared);
+}
+print(5);
+```
+]
+
+.half[
+Call Stack
+
+```
+console.log(squared)
+print(5)
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+function multiply(a, b) {
+  return a * b;
+}
+function square(n) {
+  return multiply(n, n);
+}
+return print(n) {
+  var squared = square(n);
+  console.log(squared);
+}
+print(5);
+```
+]
+
+.half[
+Call Stack
+
+```
+print(5)
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+function multiply(a, b) {
+  return a * b;
+}
+function square(n) {
+  return multiply(n, n);
+}
+return print(n) {
+  var squared = square(n);
+  console.log(squared);
+}
+print(5);
+```
+]
+
+.half[
+Call Stack
+
+```
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+function multiply(a, b) {
+  return a * b;
+}
+function square(n) {
+  return multiply(n, n);
+}
+return print(n) {
+  var squared = square(n);
+  console.log(squared);
+}
+print(5);
+```
+]
+
+.half[
+Call Stack
+]
+
+???
+You have seen this whole stack displayed when an Error happens and you view the Console in say Chrome.
+
+---
+
+## Call Stack
+
+.half[
+```js
+function foo() {
+  return foo();
+}
+foo();
+```
+]
+
+.half[
+Call Stack
+```
+foo()
+foo()
+foo()
+foo()
+foo()
+foo()
+foo()
+foo()
+foo()
+foo()
+foo()
+foo()
+foo()
+foo()
+foo()
+main()
+```
+]
+
+???
+RangeError: Maximum call stack size exceeded
+
+---
+
+## Blocking
+
+What happens when things are slow?
+
+.half[
+```js
+var foo = $.getSync('http://foo.com');
+var bar = $.getSync('http://bar.com');
+console.log(foo);
+console.log(bar);
+```
+]
+
+.half[
+Call Stack
+```
+$.getSync('http://foo.com');
+main()
+```
+]
+
+???
+It's up to the engine to define what operations are slow. Eg `console.log` is asynchronous in Chrome.
+
+Loading spinner. Try interacting with the website. Remember dark overlay over UI?
+
+---
+
+## Solution
+### Asynchronous Callbacks
+
+Here's a function. Call me, maybe?
+
+---
+
+## Call Stack
+
+.half[
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+]
+
+.half[
+Call Stack
+```
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+]
+
+.half[
+Call Stack
+```
+console.log('Hello')
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+]
+
+.half[
+Call Stack
+```
+setTimeout(cb, 1000)
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+]
+
+.half[
+Call Stack
+```
+console.log('peeps!')
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+]
+
+.half[
+Call Stack
+```
+main()
+```
+]
+
+---
+
+## Call Stack
+
+.half[
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+]
+
+.half[
+Call Stack
+]
+
+---
+## Call Stack
+
+.half[
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+]
+
+.half[
+Call Stack
+```
+console.log('there')
+```
+]
+
+---
+
+## JavaScript in Chrome
+
+.image[![Diagram](./img/1-js-in-chrome.png)]
+
+---
+
+## JavaScript in Chrome (Detail)
+
+.image[![Diagram](./img/2-js-in-chrome-focus.png)]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+]
+
+.third[
+WebAPIs
+]
+
+.third[
+Callback Queue
+]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+```
+main()
+```
+]
+
+.third[
+WebAPIs
+]
+
+.third[
+Callback Queue
+]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+```
+console.log('Hello')
+main()
+```
+]
+
+.third[
+WebAPIs
+]
+
+.third[
+Callback Queue
+]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+```
+setTimeout(cb, 1000)
+main()
+```
+]
+
+.third[
+WebAPIs
+]
+
+.third[
+Callback Queue
+]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+```
+setTimeout(cb, 1000)
+main()
+```
+]
+
+.third[
+WebAPIs
+```
+timer(cb)
+```
+]
+
+.third[
+Callback Queue
+]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+```
+console.log('peeps!')
+main()
+```
+]
+
+.third[
+WebAPIs
+```
+timer(cb)
+```
+]
+
+.third[
+Callback Queue
+]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+```
+main()
+```
+]
+
+.third[
+WebAPIs
+```
+timer(cb)
+```
+]
+
+.third[
+Callback Queue
+]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+]
+
+.third[
+WebAPIs
+```
+timer(cb)
+```
+]
+
+.third[
+Callback Queue
+]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+]
+
+.third[
+WebAPIs
+]
+
+.third[
+Callback Queue
+```
+cb
+```
+]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+```
+cb
+```
+]
+
+.third[
+WebAPIs
+]
+
+.third[
+Callback Queue
+]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+```
+console.log('there')
+cb
+```
+]
+
+.third[
+WebAPIs
+]
+
+.third[
+Callback Queue
+]
+
+---
+
+## Call Stack
+
+```js
+console.log('Hello');
+
+setTimeout(function() {
+  console.log('there');
+}, 1000);
+
+console.log('peeps!');
+```
+
+.third[
+Call Stack
+]
+
+.third[
+WebAPIs
+]
+
+.third[
+Callback Queue
+]
+
+---
+
+class: center, middle
+
+# Fin
+
+    </textarea>
+    <script src="./libs/remark.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'github'
+      });
+    </script>
+  </body>
+</html>
