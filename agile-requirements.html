@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Agile Planning Process</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @import url('https://fonts.googleapis.com/css?family=Anonymous+Pro|Merriweather:400,700|PT+Sans');
+      body { font-family: 'Merriweather', serif; }
+      h1, h2, h3 {
+        font-family: 'PT Sans', sans-serif;
+        font-weight: 400;
+      }
+      a {
+        color: #38bb6c;
+        text-decoration: none;
+      }
+      strong {
+        font-weight: 700;
+      }
+      li:not(:last-child) {
+        margin-bottom: 10px;
+      }
+      .remark-code, .remark-inline-code {
+        font-family: 'Anonymous Pro', monospace;
+      }
+      .remark-slide-content {
+        background-size: contain;
+      }
+
+      .valign {
+        transform: translateY(50%);
+      }
+
+      .image img {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+<textarea id="source">
+
+class: center, middle
+
+# Agile Planning Process
+
+---
+
+background-image: url(./img/3-planning-to-plan.jpg)
+
+???
+
+How to name JIRA tickets, best capture ticket requirements to reduce the communication overhead between people.
+
+1. As more people are collaborating together, important **information can be lost** in the process.
+2. Either we have all people attend all **meetings** or we improve how we plan our work that will involved - business, UX, devs, QA etc.
+
+As I started researching this found out that one has to really discuss the different **software development models** that influence how work gets planned and done. This presentation is a food for thought, if you hear something useful, make a note of it.
+
+**Waterfall** is a traditional engineering model used to design and build things like bridges and buildings. Software is different as knowledge gained from the development process itself can feed back to the requirements and design of a solution; we need something less rigid.
+
+---
+
+## [Rapid Application Development](https://en.wikipedia.org/wiki/Rapid_application_development)
+
+Expert individuals **prototype** features without rigorous design specification.
+
+1. (+) User satisfaction
+1. (+) Reduces risk
+1. (-) Experts and strong management
+1. (-) Hack and test
+1. (-) Scalability
+
+*If that's the case, should we build features in a way that they can be easily removed?*
+
+???
+On the **opposite end** from Waterfall we have RAD.
+
+Emphasizes developing **prototypes**, frequently instead of a rigorous design specification. Prototypes allow users to understand, modify and approve a working model of the system that meets their needs.
+
+### Pros
+
+1. **User satisfaction**. By involving users there is a better chance to focus on their actual problems than focusing on technical problems that are of interest to devs.
+1. **Reduces risk** by focusing on prototyping the most complex parts of the system so that learnings can be employed in the next phase.
+
+### Cons
+
+1. You need the most **experienced people** to communicate constantly among each other to iterate on the product. Needs strong management too that is **to the point and makes decisions**.
+1. Hack and test. Taken too far devs constantly make minor changes to individual components and ignoring **system architecture** issues that could improve overall design. This is more common in teams that focus heavily on the user interface of the system. Code written by individual devs is harder to maintain and understand by other team members.
+1. Lack of design and control means this process **scales** less well to larger teams.
+
+---
+
+## [Agile Manifesto](http://agilemanifesto.org/)
+
+.valign[.center[
+> **Individuals and interactions** over processes and tools
+
+> **Working software** over comprehensive documentation
+
+> **Customer collaboration** over contract negotiation
+
+> **Responding to change** over following a plan
+]]
+
+???
+
+An **in-between step** between Waterfall and RAD is Agile. We already have sprints, standups and a backlog, things that Agile uses.
+
+1. Philosophy of titans of the industry re developing software.
+1. Although there is value in the items on the right, they value things on the left more.
+
+## vs RAD
+
+1. Prototypes are not allowed. Instead of doing something badly, it's broken down to smaller features.
+1. Team is more confident about changing the code base without breaking the product.
+1. Compared to RAD testers are involved
+
+---
+
+background-image: url(./img/4-user-story-lifecycle.png)
+
+???
+
+What is a task lifecycle in Agile?
+
+## Roles
+
+1. Product Owner - has a **vision** of what he or she wishes to build, and conveys that vision to the team
+2. Business Analyst - **translate** business needs into tech requirements
+
+## Key Artifacts (byproducts of sofware development)
+
+1. User Story - **description** of a software feature from a user perspective (simplified description of a requirement)
+2. Acceptance Criteria - **conditions of satisfaction** for each story
+
+---
+
+## User Stories
+
+### As a Role, I want Goal so that Benefit
+
+Lack of **shared understanding** is not only a waste of people's time, it is also extremely frustrating.
+
+Bad:
+
+- Improve text contrast in layers panel preview.
+- Editor - Export - Modal for long exports
+- Editor - Text Element - Make sure we save text element content when user is focused on ckEditor.
+
+???
+
+Description of a software feature from a user perspective.
+
+## Examples
+
+(As a user...)
+
+- I want a preview of text element so that I can easily select among my layers.
+- I want to see if my ad export is "in progress" so that I don't think the app is broken.
+*This is related to #1 [Usability Heuristic](https://www.nngroup.com/articles/ten-usability-heuristics/) - Visibility of system status*
+- *(Bug)* I want my element changes to be saved when clicking around the editor so that I don't lose my content.
+
+## Definition of Ready (DoR)
+1. The key is that before a story can be pulled into a sprint it needs to be in a **state of "ready"**.
+2. It is up to the team to work out what "ready" means:
+
+  - Clear priority in the backlog
+  - Team understands the business value
+  - Has acceptance criteria
+  - Has an outline for a technical solution
+  - Has been estimated by the team
+
+---
+
+background-image: url(./img/5-story-splitting.png)
+
+???
+
+## User Story Splitting
+
+We have stories, but **how much scope** should they cover? In Agile terms, up to 1 sprint. Why?
+
+1. A big task involves a massive PR that nobody can read.
+1. A big PR means higher opportunity for mistakes. More back and forth among devs and the QA team.
+1. Invariably you'll have bugs and other tasks that come along and you'll waste time switching between them and the main task.
+1. A dev won't see their work on prod in weeks.
+1. Scope can change half-way through.
+1. If we pull a task into multiple sprints, how much time do we need to allocate to it each week?
+
+This chart has some rules of thumb to help one split a large task into a smaller task.
+
+1. **Complex interface**? Can we do a simple version first?
+1. Same kind of data via **multiple interfaces** (data feeds)? Start with one interface first?
+1. Complexity from **non-functional requirements** (image compression)? Make it work first.
+1. Cross-cutting concerns (aspect ratio example)? Start with a clear API between runtime, backend and Editor UI?
+
+---
+
+## [Acceptance Criteria](https://nomad8.com/acceptance_criteria/)
+
+(As a user...)
+
+I want a preview of text element so that I can easily select among my layers.
+
+- I can see the element's text (**intent**) × Select a contrasting element background/foreground (solution).
+
+I want to see my account's billing status, so that I know when to pay $.
+
+- I can see the main admin panel on various screen sizes (**independent of implementation**).
+- I can see account expiry date (**relatively high level**) × Show `subscription_expiry` field coming from Fusebill.
+
+???
+
+## Purpose
+
+1. Define the **boundaries** for a user story/feature
+1. Help the product owner answer what they need in order for this feature to **provide value**.
+1. Help the team gain a **shared understanding** of the story/feature.
+1. Help developers and testers to derive **tests**.
+1. Help developers know when to **stop** adding more functionality to a story.
+
+Going back to **User Story Splitting**, too many acceptance criteria can tell you that your story is too large for a sprint.
+
+## Where do the details go?
+
+- Account balance is shown as `$1000.00 / per year`.
+- Team account shows up as "Flexitive for Teams".
+
+1. Internal documentation. Up to the team.
+2. Automated acceptance tests. Tests provide value as documentation.
+
+---
+
+## [Given, When, Then - Cucumber](https://github.com/cucumber/cucumber/wiki/Given-When-Then)
+
+It connects the human concept of cause and effect, to the software concept of input/process/output.
+
+```gherkin
+Feature: FLX-3336
+  As a user of Flexitive
+  I want a preview of text element
+  So that I can easily select among my layers
+
+  Scenario: Text element in white
+    Given I am in the Layers panel
+    When I have a Text element with foreground color in "#FFF"
+    Then I should see its background color in "#000"
+```
+
+.image[![Cucumber](./img/6-cucumber-awesome.jpg)]
+
+???
+
+Behavior driven development (BDD) is an extension of Test driven development (TDD) where structured natural language statements from acceptance criteria map into executable tests.
+
+Support for [Nightwatch.js](https://github.com/mucsi96/nightwatch-cucumber).
+
+---
+
+class: center, middle
+
+# Fin
+
+    </textarea>
+    <script src="./libs/remark.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'github'
+      });
+    </script>
+  </body>
+</html>
